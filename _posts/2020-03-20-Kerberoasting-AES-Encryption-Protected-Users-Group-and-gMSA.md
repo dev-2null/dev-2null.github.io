@@ -1,7 +1,9 @@
 ---
-layout: post
-author: dev2null
+layout: single
+classes: wide
+title:  "Kerberoasting: AES Encryption, Protected User Group and Group MSA"
 ---
+
 # Kerberoasting: AES Encryption, Protected User Group and Group MSA
 
 
