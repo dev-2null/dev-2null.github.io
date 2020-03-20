@@ -199,3 +199,5 @@ defaults:
       layout: single
       author_profile: true
 related: true
+
+theme: jekyll-theme-cayman
