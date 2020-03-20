@@ -4,9 +4,6 @@ classes: wide
 title:  "Kerberoasting: AES Encryption, Protected User Group and Group MSA"
 ---
 
-# Kerberoasting: AES Encryption, Protected User Group and Group MSA
-
-
 
 ## Introduction
 
@@ -22,7 +19,7 @@ There are a lot of wonderful articles out there explaining Kerberoasting. I'll s
 
 
 
-A long and complex password for a service account with regular rotation is highly recommended to mitigate Kerberoasting. Also, I often hear people talking about enabling AES encryption to mitigate Kerbeorasting: "If we enforce service account to encrypt service ticket using AES256, the resulting ticket will not be cracked". Enabling AES encryption is also listed in MITRE ATT&CK technique https://attack.mitre.org/techniques/T1208/ :
+A long and complex password for a service account with regular rotation is highly recommended to mitigate Kerberoasting. Also, I often hear people talking about enabling AES encryption to mitigate Kerbeorasting: "If we enforce service account to encrypt service ticket using AES256, the resulting ticket will not be cracked". Enabling AES encryption is also listed in [MITRE ATT&CK technique](https://attack.mitre.org/techniques/T1208/) :
 
 
 
@@ -30,7 +27,7 @@ A long and complex password for a service account with regular rotation is highl
 
 
 
-and OWASP document https://www.owasp.org/images/4/4a/OWASP_Frankfurt_-44_Kerberoasting.pdf :
+and [OWASP document](https://www.owasp.org/images/4/4a/OWASP_Frankfurt_-44_Kerberoasting.pdf) :
 
 <img src="/assets/img/kerberoasting/owasp.png" alt="OWASP" style="zoom:24%;" />
 
@@ -197,9 +194,6 @@ We can use Powershell AD module to create MSA. It would be better to first creat
 
 
 ```powershell
-
-```
-
 net group gMSAGroup /add /domain
 
 net group gMSAGroup SERVER$ /add /domain
@@ -207,9 +201,6 @@ net group gMSAGroup SERVER$ /add /domain
 Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10))
 
 New-ADServiceAccount gMSAccount -DNSHostName gMSAccount.testlab.local -PrincipalsAllowedToRetrieveManagedPassword gMSAGroup
-
-```
-
 ```
 
 
@@ -219,17 +210,11 @@ You can specify server names or a group in which the servers are members. In thi
 
 
 ```powershell
-
-```
-
 Install-WindowsFeature RSAT-AD-POWERSHELL
 
 Set-ADServiceAccount -Identity gMSAccount -PrincipalsAllowedToRetrieveManagedPassword SERVER$
 
 Install-ADServiceAccount gMSAccount
-
-```
-
 ```
 
 
@@ -256,7 +241,7 @@ The best mitigation for a Kerberoasting attack is to ensure the password for ser
 
 ## References/thanks
 
-Thanks to the previously work done by [@harmj0y](https://twitter.com/harmj0y)  to help me get clear picture of Kerberoasting/ASREPRoasting attack. I always feel mind-freshing no matter how many times I read his blog posts. Also thanks [@_dirkjan](https://twitter.com/_dirkjan) for answering me questions and the BloodHoundGang community. A big thank you to my colleague [Constantin](https://twitter.com/_Herberos) who encouraged me, spent a lot of time to discuss with me and helped me.
+Thanks to the previously work done by [@harmj0y](https://twitter.com/harmj0y)  to help me get clear picture of Kerberoasting/ASREPRoasting attack. I always feel mind-freshing no matter how many times I read his blog posts. Also thanks [@_dirkjan](https://twitter.com/_dirkjan) for answering me questions and the BloodHoundGang community. A big thank you to my colleague [@Constantin](https://twitter.com/_Herberos) who encouraged me, spent a lot of time to discuss with me and helped me.
 
 
 
