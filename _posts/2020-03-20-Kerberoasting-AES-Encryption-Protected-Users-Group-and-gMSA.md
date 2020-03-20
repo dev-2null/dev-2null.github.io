@@ -50,7 +50,7 @@ Kerberoast generally targets user accounts with a SPN associated in Active Direc
 
 
 
-[@harmj0y](https://twitter.com/harmj0y) has already discussed this AD attribute in his article [Kerberos Revisited](https://www.harmj0y.net/blog/redteaming/kerberoasting-revisited/). *By default, `msDS-SupportedEncryptionTypes` value for computer accounts is set to 0x1C (RC4_HMAC_MD5 | AES128_CTS_HMAC_SHA1_96 | AES256_CTS_HMAC_SHA1_96) according to [MS-KILE] 3.1.1.5. Service tickets for machines nearly always use AES256 as the highest mutually supported encryption type will be used in a Kerberos ticket exchange.*
+[@harmj0y](https://twitter.com/harmj0y) has already discussed this AD attribute in his article [Kerberos Revisited](https://www.harmj0y.net/blog/redteaming/kerberoasting-revisited/). *By default, `msDS-SupportedEncryptionTypes` value for computer accounts is set to 0x1C (RC4_HMAC_MD5 \| AES128_CTS_HMAC_SHA1_96 \| AES256_CTS_HMAC_SHA1_96) according to [MS-KILE] 3.1.1.5. Service tickets for machines nearly always use AES256 as the highest mutually supported encryption type will be used in a Kerberos ticket exchange.*
 
 
 
@@ -58,7 +58,7 @@ For user accounts, the attribute is not defined or is set to 0. The KDC will nee
 
 
 
-By setting "This account supports Kerberos AES 128/256 bit encryption" in Active Directory Users and Computers user properties, `msDS-SupportedEncryptionTypes` will be changed to 0x18 (AES128_CTS_HMAC_SHA1_96 | AES256_CTS_HMAC_SHA1_96), which means this user account supports AES encryption only. However, harmj0y found that it is still possible to get RC4 encrypted ticket by specifying RC4 as the only supported encryption algorithm we support in the TGS request body. 
+By setting "This account supports Kerberos AES 128/256 bit encryption" in Active Directory Users and Computers user properties, `msDS-SupportedEncryptionTypes` will be changed to 0x18 (AES128_CTS_HMAC_SHA1_96 \| AES256_CTS_HMAC_SHA1_96), which means this user account supports AES encryption only. However, harmj0y found that it is still possible to get RC4 encrypted ticket by specifying RC4 as the only supported encryption algorithm we support in the TGS request body. 
 
 
 
@@ -234,7 +234,7 @@ Install-ADServiceAccount gMSAccount
 
 
 
-The sAMAccountName for this service account gMSAccount is `gMSAccount$` and the sAMAccountType is `MACHINE_ACCOUNT`. Just like the computer account, the password is random and complex and it changes every 30 days by default. In addition, the AD attribute `msDS-SupportedEncryptionTypes` also has the value of 0x1C (RC4_HMAC_MD5 | AES128_CTS_HMAC_SHA1_96 | AES256_CTS_HMAC_SHA1_96), which makes it a perfect mitigation method against Kerberoasting attack.
+The sAMAccountName for this service account gMSAccount is `gMSAccount$` and the sAMAccountType is `MACHINE_ACCOUNT`. Just like the computer account, the password is random and complex and it changes every 30 days by default. In addition, the AD attribute `msDS-SupportedEncryptionTypes` also has the value of 0x1C (RC4_HMAC_MD5 \| AES128_CTS_HMAC_SHA1_96 \| AES256_CTS_HMAC_SHA1_96), which makes it a perfect mitigation method against Kerberoasting attack.
 
 
 
