@@ -29,7 +29,7 @@ A long and complex password for a service account with regular rotation is highl
 
 and [OWASP document](https://www.owasp.org/images/4/4a/OWASP_Frankfurt_-44_Kerberoasting.pdf) :
 
-![mire](/assets/img/kerberoasting/owasp.png){:height="50%" width="50%"}
+![mire](/assets/img/kerberoasting/owasp.png){:height="50%" width="50%"}{: .align-center}
 
 
 as a valid mitigation method. Is that really true? Yes, and no.
