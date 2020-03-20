@@ -29,8 +29,7 @@ A long and complex password for a service account with regular rotation is highl
 
 and [OWASP document](https://www.owasp.org/images/4/4a/OWASP_Frankfurt_-44_Kerberoasting.pdf) :
 
-<img src="/assets/img/kerberoasting/owasp.png" alt="OWASP" style="zoom:24%;" />
-
+![mire](/assets/img/kerberoasting/owasp.png){: .align-center}
 
 
 as a valid mitigation method. Is that really true? Yes, and no.
@@ -103,7 +102,7 @@ Let's take a look at the AS-REP when user does not require pre-authentication:
 
 
 
-<img src="/assets/img/kerberoasting/as-rep.png" alt="as-rep" style="zoom:45%;" />
+![rc4as-rep](/assets/img/kerberoasting/as-rep.png){: .align-center}
 
 
 
@@ -119,12 +118,10 @@ By default, if we issue a runas command and login as a user that does not requir
 
 
 
-<img src="/assets/img/kerberoasting/etypeas-req.png" alt="etypeas-req" style="zoom:46%;" />
+![rc4as-rep](/assets/img/kerberoasting/etypeas-req.png){: .align-center}
 
 
-
-<img src="/assets/img/kerberoasting/etypeas-rep.png" alt="etypeas-rep" style="zoom:46%;" />
-
+![rc4as-rep](/assets/img/kerberoasting/etypeas-rep.png){: .align-center}
 
 
 
@@ -133,7 +130,7 @@ However, by using [ASREPRoast.ps1](https://github.com/HarmJ0y/ASREPRoast), we ca
 
 
 
-![rc4as-rep](/assets/img/kerberoasting/rc4as-rep.png)
+![rc4as-rep](/assets/img/kerberoasting/rc4as-rep.png){: .align-center}
 
 
 
@@ -145,7 +142,7 @@ Now it's time to go back to Kerberoasting and take a look at the TGS-REP when us
 
 
 
-![tgs-rep](/assets/img/kerberoasting/tgs-rep.png)
+![tgs-rep](/assets/img/kerberoasting/tgs-rep.png){: .align-center}
 
 
 
@@ -157,7 +154,7 @@ Service account in Protected Users group will still have RC4 encrypted service t
 
 
 
-![rc4kerberoast](/assets/img/kerberoasting/rc4kerberoast.png)
+![rc4kerberoast](/assets/img/kerberoasting/rc4kerberoast.png){: .align-center}
 
 
 
@@ -167,7 +164,7 @@ Adding service user account in the Protected Users group does not mitigate Kerbe
 
 
 
-![warning](/assets/img/kerberoasting/warning.png)
+![warning](/assets/img/kerberoasting/warning.png){: .align-center}
 
 
 
