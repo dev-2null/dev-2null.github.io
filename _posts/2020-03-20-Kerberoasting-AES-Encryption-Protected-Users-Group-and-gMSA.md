@@ -29,7 +29,7 @@ A long and complex password for a service account with regular rotation is highl
 
 and [OWASP document](https://www.owasp.org/images/4/4a/OWASP_Frankfurt_-44_Kerberoasting.pdf) :
 
-![mire](/assets/img/kerberoasting/owasp.png)
+![mire](/assets/img/kerberoasting/owasp.png){:height="50%" width="50%"}
 
 
 as a valid mitigation method. Is that really true? Yes, and no.
@@ -102,7 +102,7 @@ Let's take a look at the AS-REP when user does not require pre-authentication:
 
 
 
-![rc4as-rep](/assets/img/kerberoasting/as-rep.png){: .align-center}
+![rc4as-rep](/assets/img/kerberoasting/as-rep.png){:height="50%" width="50%"}{: .align-center}
 
 
 
@@ -118,10 +118,10 @@ By default, if we issue a runas command and login as a user that does not requir
 
 
 
-![rc4as-rep](/assets/img/kerberoasting/etypeas-req.png){: .align-center}
+![rc4as-rep](/assets/img/kerberoasting/etypeas-req.png){:height="50%" width="50%"}{: .align-center}
 
 
-![rc4as-rep](/assets/img/kerberoasting/etypeas-rep.png){: .align-center}
+![rc4as-rep](/assets/img/kerberoasting/etypeas-rep.png){:height="50%" width="50%"}{: .align-center}
 
 
 
