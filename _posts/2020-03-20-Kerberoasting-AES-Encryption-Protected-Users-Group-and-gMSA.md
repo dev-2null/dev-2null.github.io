@@ -26,13 +26,13 @@ A long and complex password for a service account with regular rotation is highl
 
 
 
-![mire](/assets/img/mitre.png){: .align-center}
+![mire](/assets/img/kerberoasting/mitre.png){: .align-center}
 
 
 
 and OWASP document https://www.owasp.org/images/4/4a/OWASP_Frankfurt_-44_Kerberoasting.pdf :
 
-<img src="/assets/img/owasp.png" alt="OWASP" style="zoom:24%;" />
+<img src="/assets/img/kerberoasting/owasp.png" alt="OWASP" style="zoom:24%;" />
 
 
 
@@ -106,7 +106,7 @@ Let's take a look at the AS-REP when user does not require pre-authentication:
 
 
 
-<img src="/assets/img/as-rep.png" alt="as-rep" style="zoom:45%;" />
+<img src="/assets/img/kerberoasting/as-rep.png" alt="as-rep" style="zoom:45%;" />
 
 
 
@@ -122,11 +122,11 @@ By default, if we issue a runas command and login as a user that does not requir
 
 
 
-<img src="/assets/img/etypeas-req.png" alt="etypeas-req" style="zoom:46%;" />
+<img src="/assets/img/kerberoasting/etypeas-req.png" alt="etypeas-req" style="zoom:46%;" />
 
 
 
-<img src="/assets/img/etypeas-rep.png" alt="etypeas-rep" style="zoom:46%;" />
+<img src="/assets/img/kerberoasting/etypeas-rep.png" alt="etypeas-rep" style="zoom:46%;" />
 
 
 
@@ -136,7 +136,7 @@ However, by using [ASREPRoast.ps1](https://github.com/HarmJ0y/ASREPRoast), we ca
 
 
 
-![rc4as-rep](/assets/img/rc4as-rep.png)
+![rc4as-rep](/assets/img/kerberoasting/rc4as-rep.png)
 
 
 
@@ -148,7 +148,7 @@ Now it's time to go back to Kerberoasting and take a look at the TGS-REP when us
 
 
 
-![tgs-rep](/assets/img/tgs-rep.png)
+![tgs-rep](/assets/img/kerberoasting/tgs-rep.png)
 
 
 
@@ -160,7 +160,7 @@ Service account in Protected Users group will still have RC4 encrypted service t
 
 
 
-![rc4kerberoast](/assets/img/rc4kerberoast.png)
+![rc4kerberoast](/assets/img/kerberoasting/rc4kerberoast.png)
 
 
 
@@ -170,7 +170,7 @@ Adding service user account in the Protected Users group does not mitigate Kerbe
 
 
 
-![warning](/assets/img/warning.png)
+![warning](/assets/img/kerberoasting/warning.png)
 
 
 
