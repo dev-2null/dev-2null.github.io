@@ -174,7 +174,7 @@ compress_html:
 analytics:
   provider               : "google" # false (default), "google", "google-universal", "custom"
   google:
-    tracking_id          : "UA-125398868-1"
+    tracking_id          : "UA-138256073-1"
     anonymize_ip         : # true, false (default)
 
 
