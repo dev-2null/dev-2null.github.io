@@ -69,15 +69,19 @@ To search objects in AD, first we need to understand the basic structure of the 
 ![ADPartitions](/assets/img/adenum/adpartitions.png){: .align-center}
 
 -  Domain Partition: `DC=privatelab,DC=local`
+
 It stores information about directory objects found in the given domain. (E.g. Users/Groups/Computers/OUs.)
 
 -  Configuration Partition: `CN=Configuration,DC=privatelab,DC=local`
+
 It stores information about the directory structure such as available domains/sites and domain controllers in the forest.
 
 -  Schema Partition: `CN=Schema,CN=Configuration,DC=privatelab,DC=local`
+
 It stores definition of all objects, along with their properties.
 
 -  Application Partition: `DC=DomainDnsZones,DC=privatelab,DC=local` & `DC=ForestDnsZones,DC=privatelab,DC=local`
+
 It is optional, and it stores information about a specific application, it cannot be used to store security principal obejcts. (E.g. Adding the DNS role will add DomainDnsZone/ForestDnsZone)
 
 Most of the time, objects we want to enumerate are under the default naming context (domain partition).
