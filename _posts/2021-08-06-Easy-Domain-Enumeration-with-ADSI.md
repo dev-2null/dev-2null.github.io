@@ -155,7 +155,7 @@ Here are some examples of the LDAP filters I used in ADCollector:
 Type accelerators are aliases for .NET framework classes. They allow you to access specific .NET classes without having to explicitly type the entire class name. Luckily, two classes we need have corresponding type accelerators:
 
 ```
-adsi				System.DirectoryServices.DirectoryEntry
+adsi						System.DirectoryServices.DirectoryEntry
 adsisearcher		System.DirectoryServices.DirectorySearcher
 ```
 
@@ -166,7 +166,6 @@ To create an instance of the DirectoryEntry class using the type accelerator, yo
 [adsi]"LDAP://$(whoami /fqdn)"
 [adsi]"LDAP://domain.local/OU=MyOU,DC=Domain,DC=Local"
 [adsi]"LDAP://10.10.10.1"
-
 ```
 
 To create an instance of the DirectorySearcher class using the type accelerator, you can supply a set of empty strings, the empty string supplied to the DirectorySearcher class for the constructor will be interpreted as the filter: 
@@ -174,21 +173,18 @@ To create an instance of the DirectorySearcher class using the type accelerato
 ```powershell
 [adsisearcher]""
 [adsisearcher]"(ObjectCategory=user)".FindOne().Properties
-
 ```
 
 You can also supply a DirectoryEntry object for the DirectorySearcher object so that you can define location you want to search:
 
 ```powershell
 [adsisearcher]::new([adsi]"LDAP://domain.local/OU=MyOU,DC=Domain,DC=Local", "(ObjectCategory=user)").FindAll()
-
 ```
 
 Keep in mind that only the DirectoryEntry can be used to update object properties. If we need to modify a specific attribute of an object returned in the search result, we first need to use `GetDirectoryEntry()` method to get the DirectoryEntry of the target object:
 
 ```powershell
 [adsisearcher]::new([adsi]"LDAP://domain.local", "(name=targetuser)").FindOne().GetDirectoryEntry()
-
 ```
 
 To modify an attribute of the target object, we can simply set the property value:
@@ -197,9 +193,7 @@ To modify an attribute of the target object, we can simply set the property valu
 $entry=[adsisearcher]::new([adsi]"LDAP://domain.local", "(name=targetuser)").FindOne().GetDirectoryEntry(); $entry.Properties["description"].Value = "Nothing interesting here.";$entry.CommitChanges()
 
 #Modify the property of multiple objects
-[adsisearcher]::new([adsi]"LDAP://domain.local", "(ObjectCategory=user)").FindAll()|ForEach-Object {$entry=$_.GetDirect
-oryEntry();$entry.Properties["description"].Value="Nothing interesting here."; $entry.CommitChanges()}
-
+[adsisearcher]::new([adsi]"LDAP://domain.local", "(ObjectCategory=user)").FindAll()|ForEach-Object {$entry=$_.GetDirectoryEntry();$entry.Properties["description"].Value="Nothing interesting here."; $entry.CommitChanges()}
 ```
 
 > Don't forget to commit changes after updating the attribute, otherwise all uncommitted changes will be lost.
